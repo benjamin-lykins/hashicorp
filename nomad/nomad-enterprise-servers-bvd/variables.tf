@@ -126,6 +126,12 @@ variable "nomad_tls_enabled" {
   default     = true
 }
 
+variable "nomad_audit_logging_enabled" {
+  type        = bool
+  description = "Boolean to enable audit logging for Nomad."
+  default     = true
+}
+
 variable "nomad_enable_redundancy_zones" {
   type        = bool
   description = "Boolean to enable Nomad server redundancy zones for higher availability."
@@ -157,6 +163,8 @@ variable "cni_version" {
     error_message = "Value must be in the format 'X.Y.Z'."
   }
 }
+
+
 
 variable "nomad_architecture" {
   type        = string

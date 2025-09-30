@@ -292,6 +292,18 @@ region     = "${nomad_region}"
 enable_syslog   = true
 syslog_facility = "daemon"
 
+%{ if nomad_audit_logging_enabled }
+audit {
+  enabled = true
+  sink "audit" {
+    type               = "file"
+    delivery_guarantee = "enforced"
+    format             = "json"
+    path               = "/opt/nomad/data/audit/audit.log"
+  }
+}
+%{ endif }
+
 %{ if nomad_server }
 server {
   enabled          = true
@@ -300,6 +312,7 @@ server {
   license_path     = "$NOMAD_LICENSE_PATH"
   encrypt          = "$GOSSIP_ENCRYPTION_KEY"
   redundancy_zone  = "$AVAILABILITY_ZONE"
+  
 
   server_join {
     retry_join = ["provider=aws addr_type=private_v4 tag_key=Environment-Name tag_value=${template_name}"]
