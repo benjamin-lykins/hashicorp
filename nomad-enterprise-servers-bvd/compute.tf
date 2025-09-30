@@ -164,6 +164,7 @@ data "aws_ami" "provided" {
 }
 
 resource "aws_launch_template" "nomad" {
+  for_each                             = var.nomad_enable_redundancy_zones ? toset("server", "redundancy") : toset("server")
   name                                 = local.template_name
   update_default_version               = true
   image_id                             = coalesce(local.ami_id_list...)

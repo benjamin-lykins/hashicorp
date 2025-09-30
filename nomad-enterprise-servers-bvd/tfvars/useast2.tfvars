@@ -14,11 +14,12 @@ additional_package_names               = ["htop"]
 
 # --- Nomad Configuration Settings --- # 
 nomad_acl_enabled        = false
-nomad_tls_enabled        = false
+nomad_tls_enabled        = true
 nomad_client             = false
 nomad_server             = true
 nomad_ui_enabled         = true
 nomad_upstream_servers   = ["127.0.0.1"]
+nomad_region             = "useast
 nomad_datacenter         = "dc1"
 autopilot_health_enabled = true
 nomad_version            = "1.10.5+ent"

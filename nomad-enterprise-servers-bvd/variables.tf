@@ -126,6 +126,12 @@ variable "nomad_tls_enabled" {
   default     = true
 }
 
+variable "nomad_enable_redundancy_zones" {
+  type        = bool
+  description = "Boolean to enable Nomad server redundancy zones for higher availability."
+  default     = false
+}
+
 variable "autopilot_health_enabled" {
   type        = bool
   default     = true
