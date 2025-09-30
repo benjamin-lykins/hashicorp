@@ -37,8 +37,8 @@ module "nomad" {
   project_name   = each.value.project_name
   organization   = var.organization
 
-  agent_pool_id      = each.key.agent_pool_id
-  auto_apply         = each.key.auto_apply
+  agent_pool_id      = each.value.agent_pool_id
+  auto_apply         = each.value.auto_apply
   envvars            = each.value.envvars
   queue_all_runs     = each.value.queue_all_runs
   vcs_repo           = each.value.vcs_repo
