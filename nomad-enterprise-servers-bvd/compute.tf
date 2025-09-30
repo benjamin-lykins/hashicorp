@@ -164,7 +164,7 @@ data "aws_ami" "provided" {
 }
 
 resource "aws_launch_template" "nomad" {
-  for_each                             = var.nomad_enable_redundancy_zones ? toset("server", "redundancy") : toset("server")
+  for_each                             = var.nomad_enable_redundancy_zones ? toset(["server", "redundancy"]) : toset(["server"])
   name                                 = local.template_name
   update_default_version               = true
   image_id                             = coalesce(local.ami_id_list...)
@@ -246,6 +246,7 @@ resource "aws_placement_group" "nomad" {
 # Autoscaling Group
 #------------------------------------------------------------------------------
 resource "aws_autoscaling_group" "nomad" {
+  for_each         = var.nomad_enable_redundancy_zones ? toset(["server", "redundancy"]) : toset(["server"])
   name             = local.template_name
   min_size         = var.nomad_nodes
   max_size         = var.nomad_nodes * 2
@@ -258,7 +259,7 @@ resource "aws_autoscaling_group" "nomad" {
   placement_group           = aws_placement_group.nomad.id
 
   launch_template {
-    id      = aws_launch_template.nomad.id
+    id      = aws_launch_template.nomad[each.key].id
     version = "$Latest"
   }
 
