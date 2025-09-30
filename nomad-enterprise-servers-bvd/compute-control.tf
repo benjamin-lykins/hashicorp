@@ -27,13 +27,13 @@ locals {
     nomad_dir_home           = "/opt/nomad",
     nomad_install_url        = format("https://releases.hashicorp.com/nomad/%s/nomad_%s_linux_%s.zip", var.nomad_version, var.nomad_version, var.nomad_architecture)
     cni_install_url          = format("https://github.com/containernetworking/plugins/releases/download/v%s/cni-plugins-linux-%s-v%s.tgz", var.cni_version, var.nomad_architecture, var.cni_version)
-    aws_region               = var.region
+    aws_region               = var.aws_region
     nomad_tls_enabled        = var.nomad_tls_enabled
     nomad_acl_enabled        = var.nomad_acl_enabled
     nomad_client             = var.nomad_client
     nomad_server             = var.nomad_server
     nomad_datacenter         = var.nomad_datacenter
-    nomad_region             = var.nomad_region == null ? var.region : var.nomad_region
+    nomad_region             = var.nomad_region == null ? var.aws_region : var.nomad_region
     nomad_ui_enabled         = var.nomad_ui_enabled
     nomad_upstream_servers   = var.nomad_upstream_servers
     nomad_upstream_tag_key   = var.nomad_upstream_tag_key
@@ -245,10 +245,10 @@ resource "aws_placement_group" "nomad" {
 # Autoscaling Group
 #------------------------------------------------------------------------------
 resource "aws_autoscaling_group" "nomad" {
-  name                      = local.template_name
-  min_size                  = var.nomad_nodes
-  max_size                  = var.nomad_nodes * 2
-  desired_capacity          = var.nomad_nodes
+  name             = local.template_name
+  min_size         = var.nomad_nodes
+  max_size         = var.nomad_nodes * 2
+  desired_capacity = var.nomad_nodes
   #wait_for_elb_capacity     = var.nomad_nodes # Not evaluated for instances without ELB
   #wait_for_capacity_timeout = "1200s"
   health_check_grace_period = var.asg_health_check_grace_period

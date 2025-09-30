@@ -3,6 +3,14 @@
 
 terraform {
   required_version = ">= 1.9"
+  cloud {
+    organization = "lykins"
+    workspaces {
+      tags = {
+        repository = "nomad-enterprise-servers-bvd"
+      }
+    }
+  }
 
   required_providers {
     aws = {
@@ -10,4 +18,14 @@ terraform {
       version = ">= 5.51.0"
     }
   }
+}
+
+provider "aws" {
+  region = var.aws_region
+  default_tags {
+    tags = {
+      "terraform.workspace" = "${terraform.workspace}"
+    }
+  }
+
 }
