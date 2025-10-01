@@ -2,53 +2,6 @@
 # SPDX-License-Identifier: MPL-2.0
 
 #------------------------------------------------------------------------------
-# User Data (cloud-init) arguments
-#------------------------------------------------------------------------------
-locals {
-
-  custom_data_args = {
-
-    # https://developer.hashicorp.com/nomad/docs/configuration
-
-    # prereqs
-    nomad_license_secret_arn               = var.nomad_license_secret_arn
-    nomad_gossip_encryption_key_secret_arn = var.nomad_gossip_encryption_key_secret_arn
-    nomad_tls_cert_secret_arn              = var.nomad_tls_cert_secret_arn == null ? "NONE" : var.nomad_tls_cert_secret_arn
-    nomad_tls_privkey_secret_arn           = var.nomad_tls_privkey_secret_arn == null ? "NONE" : var.nomad_tls_privkey_secret_arn
-    nomad_tls_ca_bundle_secret_arn         = var.nomad_tls_ca_bundle_secret_arn == null ? "NONE" : var.nomad_tls_ca_bundle_secret_arn
-    additional_package_names               = join(" ", var.additional_package_names)
-
-    # Nomad settings
-    nomad_version               = var.nomad_version
-    systemd_dir                 = "/etc/systemd/system",
-    nomad_dir_bin               = "/usr/bin",
-    cni_dir_bin                 = "/opt/cni/bin",
-    nomad_dir_config            = "/etc/nomad.d",
-    nomad_dir_home              = "/opt/nomad",
-    nomad_install_url           = format("https://releases.hashicorp.com/nomad/%s/nomad_%s_linux_%s.zip", var.nomad_version, var.nomad_version, var.nomad_architecture)
-    cni_install_url             = format("https://github.com/containernetworking/plugins/releases/download/v%s/cni-plugins-linux-%s-v%s.tgz", var.cni_version, var.nomad_architecture, var.cni_version)
-    aws_region                  = var.aws_region
-    nomad_tls_enabled           = var.nomad_tls_enabled
-    nomad_acl_enabled           = var.nomad_acl_enabled
-    nomad_audit_logging_enabled = var.nomad_audit_logging_enabled
-    nomad_client                = var.nomad_client
-    nomad_server                = var.nomad_server
-    nomad_datacenter            = var.nomad_datacenter
-    nomad_region                = var.nomad_region == null ? var.aws_region : var.nomad_region
-    nomad_ui_enabled            = var.nomad_ui_enabled
-    nomad_upstream_servers      = var.nomad_upstream_servers
-    nomad_upstream_tag_key      = var.nomad_upstream_tag_key
-    nomad_upstream_tag_value    = var.nomad_upstream_tag_value
-    nomad_nodes                 = var.nomad_nodes
-    asg_name                    = local.template_name
-    template_name               = local.template_name
-    autopilot_health_enabled    = var.autopilot_health_enabled
-  }
-
-  user_data_template_rendered = templatefile("${path.module}/templates/nomad_custom_data.sh.tpl", local.custom_data_args)
-}
-
-#------------------------------------------------------------------------------
 # EC2 AMI data sources
 #------------------------------------------------------------------------------
 data "aws_ami" "ubuntu" {
@@ -165,13 +118,49 @@ data "aws_ami" "provided" {
 }
 
 resource "aws_launch_template" "nomad" {
-  for_each                             = var.nomad_enable_redundancy_zones ? toset(["server", "redundancy"]) : toset(["server"])
-  name                                 = local.template_name
-  update_default_version               = true
-  image_id                             = coalesce(local.ami_id_list...)
-  instance_type                        = var.instance_type
-  key_name                             = var.key_name
-  user_data                            = base64gzip(local.user_data_template_rendered)
+  for_each               = var.nomad_enable_redundancy_zones ? toset(["server", "redundancy"]) : toset(["server"])
+  name                   = local.template_name
+  update_default_version = true
+  image_id               = coalesce(local.ami_id_list...)
+  instance_type          = var.instance_type
+  key_name               = var.key_name
+  user_data = base64gzip(templatefile("${path.module}/templates/nomad_custom_data.sh.tpl", {
+    # https://developer.hashicorp.com/nomad/docs/configuration
+
+    # prereqs
+    nomad_license_secret_arn               = var.nomad_license_secret_arn
+    nomad_gossip_encryption_key_secret_arn = var.nomad_gossip_encryption_key_secret_arn
+    nomad_tls_cert_secret_arn              = var.nomad_tls_cert_secret_arn == null ? "NONE" : var.nomad_tls_cert_secret_arn
+    nomad_tls_privkey_secret_arn           = var.nomad_tls_privkey_secret_arn == null ? "NONE" : var.nomad_tls_privkey_secret_arn
+    nomad_tls_ca_bundle_secret_arn         = var.nomad_tls_ca_bundle_secret_arn == null ? "NONE" : var.nomad_tls_ca_bundle_secret_arn
+    additional_package_names               = join(" ", var.additional_package_names)
+
+    # Nomad settings
+    nomad_version               = var.nomad_version
+    systemd_dir                 = "/etc/systemd/system",
+    nomad_dir_bin               = "/usr/bin",
+    cni_dir_bin                 = "/opt/cni/bin",
+    nomad_dir_config            = "/etc/nomad.d",
+    nomad_dir_home              = "/opt/nomad",
+    nomad_install_url           = format("https://releases.hashicorp.com/nomad/%s/nomad_%s_linux_%s.zip", var.nomad_version, var.nomad_version, var.nomad_architecture)
+    cni_install_url             = format("https://github.com/containernetworking/plugins/releases/download/v%s/cni-plugins-linux-%s-v%s.tgz", var.cni_version, var.nomad_architecture, var.cni_version)
+    aws_region                  = var.aws_region
+    nomad_tls_enabled           = var.nomad_tls_enabled
+    nomad_acl_enabled           = var.nomad_acl_enabled
+    nomad_audit_logging_enabled = var.nomad_audit_logging_enabled
+    nomad_client                = var.nomad_client
+    nomad_server                = var.nomad_server
+    nomad_datacenter            = var.nomad_datacenter
+    nomad_region                = var.nomad_region == null ? var.aws_region : var.nomad_region
+    nomad_ui_enabled            = var.nomad_ui_enabled
+    nomad_upstream_servers      = var.nomad_upstream_servers
+    nomad_upstream_tag_key      = var.nomad_upstream_tag_key
+    nomad_upstream_tag_value    = var.nomad_upstream_tag_value
+    nomad_nodes                 = var.nomad_nodes
+    asg_name                    = local.template_name
+    template_name               = local.template_name
+    autopilot_health_enabled    = var.autopilot_health_enabled
+  }))
   instance_initiated_shutdown_behavior = "terminate"
 
   block_device_mappings {
