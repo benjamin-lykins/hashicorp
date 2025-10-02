@@ -35,3 +35,14 @@ resource "tfe_variable" "tfc_vault_role" {
 
   description = "The Vault role runs will use to authenticate."
 }
+
+resource "tfe_variable" "tfc_vault_namespace" {
+  variable_set_id = tfe_variable_set.vault.id
+
+  key      = "TFC_VAULT_NAMESPACE"
+  value    = "admin"
+  category = "env"
+
+  description = "The Vault namespace to use, if not using the default"
+}
+
