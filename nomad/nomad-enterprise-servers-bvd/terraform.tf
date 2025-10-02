@@ -17,6 +17,10 @@ terraform {
       source  = "hashicorp/aws"
       version = ">= 5.51.0"
     }
+    vault = {
+      source  = "hashicorp/vault"
+      version = "5.3.0"
+    }
   }
 }
 
@@ -27,5 +31,8 @@ provider "aws" {
       "terraform.workspace" = "${terraform.workspace}"
     }
   }
+}
+
+provider "vault" {
 
 }

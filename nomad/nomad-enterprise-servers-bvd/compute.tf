@@ -92,6 +92,8 @@ locals {
   # If an AMI ID is provided via `var.ec2_ami_id`, use it. Otherwise,
   # use the latest AMI for the specified OS distro via `var.ec2_os_distro`.
 
+  nomad_enable_redundancy = var.nomad_enable_redundancy_zones ? toset(["server-voting", "server-nonvoting"]) : toset(["server-voting"])
+
   ami_id_list = tolist([
     var.ec2_ami_id,
     join("", data.aws_ami.ubuntu.*.image_id),
@@ -105,7 +107,7 @@ locals {
     join("", data.aws_ami.al2023.*.root_device_name),
   ])
 
-  template_name = "${var.friendly_name_prefix}-nomad"
+  template_name = "${var.friendly_name_prefix}-nomad-"
 }
 
 data "aws_ami" "provided" {
@@ -118,7 +120,7 @@ data "aws_ami" "provided" {
 }
 
 resource "aws_launch_template" "nomad" {
-  for_each               = var.nomad_enable_redundancy_zones ? toset(["server", "redundancy"]) : toset(["server"])
+  for_each               = local.nomad_enable_redundancy
   name                   = local.template_name
   update_default_version = true
   image_id               = coalesce(local.ami_id_list...)
@@ -236,7 +238,7 @@ resource "aws_placement_group" "nomad" {
 # Autoscaling Group
 #------------------------------------------------------------------------------
 resource "aws_autoscaling_group" "nomad" {
-  for_each         = var.nomad_enable_redundancy_zones ? toset(["server", "redundancy"]) : toset(["server"])
+  for_each         = local.nomad_enable_redundancy
   name             = local.template_name
   min_size         = var.nomad_nodes
   max_size         = var.nomad_nodes * 2

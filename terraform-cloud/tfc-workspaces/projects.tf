@@ -1,4 +1,5 @@
 resource "tfe_project" "this" {
-  name         = "nomad"
+  for_each     = toset(var.projects)
+  name         = each.key
   organization = var.organization
 }
