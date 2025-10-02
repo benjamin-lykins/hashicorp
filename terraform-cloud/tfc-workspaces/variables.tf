@@ -10,6 +10,13 @@ variable "projects" {
   type        = list(string)
 }
 
+variable "vault_addr" {
+  description = "The URL of the Vault instance to use for dynamic credentials."
+  type        = string
+  default     = ""
+
+}
+
 variable "workspaces" {
   description = "A map of workspaces to create."
   type = map(map(object({
