@@ -2,7 +2,7 @@ resource "tfe_variable_set" "vault" {
   name         = "vault-dynamic"
   organization = var.organization
   description  = "Used for Dynamic Credentials with Vault and TFC"
-  global       = true
+  global       = false
 }
 
 resource "tfe_variable" "enable_vault_provider_auth" {

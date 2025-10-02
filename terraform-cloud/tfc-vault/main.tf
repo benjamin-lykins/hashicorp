@@ -1,10 +1,6 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: MPL-2.0
 
-
-
-
-
 # Enables the jwt auth backend in Vault at the given path,
 # and tells it where to find TFC's OIDC metadata endpoints.
 #
