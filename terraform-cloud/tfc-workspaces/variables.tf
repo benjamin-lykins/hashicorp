@@ -18,6 +18,7 @@ variable "workspaces" {
     envvars        = optional(map(string), {})
     project_name   = optional(string, "Default Project")
     queue_all_runs = optional(bool, true)
+    tfvars         = optional(map(string), {})
     vcs_repo = object({
       identifier                 = string
       branch                     = optional(string, null)

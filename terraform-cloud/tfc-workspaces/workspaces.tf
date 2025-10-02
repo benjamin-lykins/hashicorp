@@ -40,6 +40,7 @@ module "nomad" {
   working_directory  = each.value.working_directory
   workspace_desc     = each.value.workspace_desc
   workspace_map_tags = each.value.workspace_map_tags
+  tfvars             = each.value.tfvars
 
   depends_on = [tfe_project.this]
 }
