@@ -1,9 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: MPL-2.0
 
-provider "vault" {
-  address = var.vault_url
-}
+
 
 
 
@@ -36,7 +34,7 @@ resource "vault_jwt_auth_backend_role" "tfc_role" {
   bound_audiences   = [var.tfc_vault_audience]
   bound_claims_type = "glob"
   bound_claims = {
-    sub = "organization:${var.tfc_organization_name}:project:${var.tfc_project_name}:workspace:${var.tfc_workspace_name}:run_phase:*"
+    sub = "organization:${var.tfc_organization_name}:*"
   }
   user_claim = "terraform_full_workspace"
   role_type  = "jwt"

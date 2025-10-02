@@ -1,9 +1,7 @@
 terraform {
   required_version = "~> 1.0"
-
   cloud {
     organization = "lykins"
-
     workspaces {
       name = "vault-tfc-integration"
     }
@@ -15,4 +13,8 @@ terraform {
       version = "> 0.0.0"
     }
   }
+}
+
+provider "vault" {
+  address = var.vault_url
 }
