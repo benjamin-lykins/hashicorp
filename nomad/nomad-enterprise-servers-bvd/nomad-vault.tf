@@ -2,7 +2,7 @@
 # Vault Secret Engine for Nomad
 #------------------------------------------------------------------------------
 
-resource "vault_mount" "kvv2" {
+resource "vault_mount" "nomad" {
   path        = "nomad-${var.nomad_region}/"
   type        = "kv"
   options     = { version = "2" }
@@ -18,8 +18,8 @@ resource "random_id" "nomad_gossip_key" {
   byte_length = 32
 }
 
-resource "vault_kv_secret_v2" "example" {
-  mount               = "nomad/"
+resource "vault_kv_secret_v2" "nomad_gossip_key" {
+  mount               = vault_mount.nomad.path
   name                = "secret"
   delete_all_versions = true
   data_json = jsonencode(
