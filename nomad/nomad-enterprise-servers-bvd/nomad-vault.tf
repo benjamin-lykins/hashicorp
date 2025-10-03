@@ -34,11 +34,11 @@ resource "vault_kv_secret_v2" "nomad_gossip_key" {
 # Bootstrap ACL Encryption Key -> Vault
 #------------------------------------------------------------------------------
 
-# Generate a 32-byte key (AES-256)
+# Generate a UUID for the bootstrap ACL token
 resource "random_uuid" "nomad_bootstrap_token" {}
 
 
-# Store the key in Vault
+# Store the token in Vault
 resource "vault_kv_secret_v2" "nomad_bootstrap_token" {
   mount               = vault_mount.nomad.path
   name                = "bootstrap_acl_token"
@@ -53,4 +53,5 @@ resource "vault_kv_secret_v2" "nomad_bootstrap_token" {
 #------------------------------------------------------------------------------
 # Nomad TLS Settings
 #------------------------------------------------------------------------------
+
 
