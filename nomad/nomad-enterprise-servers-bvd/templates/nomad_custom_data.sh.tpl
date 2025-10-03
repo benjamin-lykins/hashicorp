@@ -139,50 +139,31 @@ function scrape_vm_info {
   log "INFO" "Detected EC2 instance ID is '$INSTANCE_ID' and availability zone is '$AVAILABILITY_ZONE'."
 }
 
-# For Nomad there are a number of supported runtimes, including Exec, Docker, Podman, raw_exec, and more. This function should be modified 
-# to install the runtime that is appropriate for your environment. By default the no runtimes will be enabled. 
-function install_runtime {
-    log "INFO" "Installing a runtime..."
-    log "INFO" "Done installing runtime."
-}
-
 function add_nomad_license {
-    local SECRET_ARN="$1"
-    local SECRET_REGION=$AWS_REGION
 
-    if [[ -z "$SECRET_ARN" ]]; then
-        log "ERROR" "Secret ARN cannot be empty. Exiting."
-        exit_script 4
-    elif [[ "$SECRET_ARN" == arn:aws:secretsmanager:* ]]; then
-        log "INFO" "Retrieving value of secret '$SECRET_ARN' from AWS Secrets Manager."
-        NOMAD_LICENSE=$(aws secretsmanager get-secret-value --region $SECRET_REGION --secret-id $SECRET_ARN --query SecretString --output text)
-        echo "$NOMAD_LICENSE" >$NOMAD_LICENSE_PATH
-    else
-        log "WARNING" "Did not detect AWS Secrets Manager secret ARN. Setting value of secret to what was passed in."
-        NOMAD_LICENSE="$SECRET_ARN"
-        echo "$NOMAD_LICENSE" >$NOMAD_LICENSE_PATH
-    fi
+ echo "${nomad_license}" > $NOMAD_LICENSE_PATH 
+ 
 }
 
-function retrieve_certs_from_awssm {
-    local SECRET_ARN="$1"
-    local DESTINATION_PATH="$2"
-    local SECRET_REGION=$AWS_REGION
-    local CERT_DATA
+# function retrieve_certs_from_awssm {
+#     local SECRET_ARN="$1"
+#     local DESTINATION_PATH="$2"
+#     local SECRET_REGION=$AWS_REGION
+#     local CERT_DATA
 
-    if [[ -z "$SECRET_ARN" ]]; then
-        log "ERROR" "Secret ARN cannot be empty. Exiting."
-        exit_script 5
-    elif [[ "$SECRET_ARN" == arn:aws:secretsmanager:* ]]; then
-        log "INFO" "Retrieving value of secret '$SECRET_ARN' from AWS Secrets Manager."
-        CERT_DATA=$(aws secretsmanager get-secret-value --region $SECRET_REGION --secret-id $SECRET_ARN --query SecretString --output text)
-        echo "$CERT_DATA" | base64 -d >$DESTINATION_PATH
-    else
-        log "WARNING" "Did not detect AWS Secrets Manager secret ARN. Setting value of secret to what was passed in."
-        CERT_DATA="$SECRET_ARN"
-        echo "$CERT_DATA" | base64 -d >$DESTINATION_PATH
-    fi
-}
+#     if [[ -z "$SECRET_ARN" ]]; then
+#         log "ERROR" "Secret ARN cannot be empty. Exiting."
+#         exit_script 5
+#     elif [[ "$SECRET_ARN" == arn:aws:secretsmanager:* ]]; then
+#         log "INFO" "Retrieving value of secret '$SECRET_ARN' from AWS Secrets Manager."
+#         CERT_DATA=$(aws secretsmanager get-secret-value --region $SECRET_REGION --secret-id $SECRET_ARN --query SecretString --output text)
+#         echo "$CERT_DATA" | base64 -d >$DESTINATION_PATH
+#     else
+#         log "WARNING" "Did not detect AWS Secrets Manager secret ARN. Setting value of secret to what was passed in."
+#         CERT_DATA="$SECRET_ARN"
+#         echo "$CERT_DATA" | base64 -d >$DESTINATION_PATH
+#     fi
+# }
 
 # user_create creates a dedicated linux user for Nomad
 function user_group_create {
@@ -287,7 +268,6 @@ server {
   encrypt          = "${nomad_gossip_encryption_key}"
   redundancy_zone  = "$AVAILABILITY_ZONE"
   
-
   server_join {
     retry_join = ["provider=aws addr_type=private_v4 tag_key=Environment-Name tag_value=${template_name}"]
   }
@@ -415,7 +395,6 @@ function main {
   user_group_create
   directory_create
   install_nomad_binary
-
   add_nomad_license "${nomad_license_secret_arn}"
   generate_nomad_config
   template_nomad_systemd
