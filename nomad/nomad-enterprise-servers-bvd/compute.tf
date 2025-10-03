@@ -221,7 +221,7 @@ resource "aws_placement_group" "nomad" {
   name         = "${var.friendly_name_prefix}-pg"
   strategy     = "spread"
   spread_level = "rack"
-  tags         = merge({ "Name" = "${var.friendly_name_prefix}-nomad" }, var.common_tags)
+  tags         = merge({ "Name" = "${var.friendly_name_prefix}-nomad-servers" }, var.common_tags)
 }
 
 #------------------------------------------------------------------------------

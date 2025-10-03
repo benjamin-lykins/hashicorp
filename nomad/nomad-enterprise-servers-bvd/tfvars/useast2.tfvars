@@ -26,7 +26,7 @@ lb_subnet_ids            = ["subnet-0252903206d749d94", "subnet-0701306e5b934764
 
 # --- Compute --- #
 
-nomad_nodes      = 0
+nomad_nodes      = 1
 ebs_is_encrypted = true
 key_name         = "mac"
 ec2_allow_ssm    = true
