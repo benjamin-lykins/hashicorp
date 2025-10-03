@@ -69,12 +69,6 @@ variable "additional_package_names" {
 #------------------------------------------------------------------------------
 # Nomad Configuration Settings
 #------------------------------------------------------------------------------
-variable "nomad_acl_enabled" {
-  type        = bool
-  description = "Boolean to enable ACLs for Nomad."
-  default     = true
-}
-
 variable "nomad_client" {
   type        = bool
   description = "Boolean to enable the Nomad client agent."
@@ -421,12 +415,6 @@ variable "ec2_allow_ssm" {
 #------------------------------------------------------------------------------
 # Vault
 #------------------------------------------------------------------------------
-
-variable "use_vault" {
-  type        = bool
-  description = "Leverage an existing Vault setup, instead of AWS Secrets Manager."
-  default     = true
-}
 
 variable "vault_license_mount" {
   type        = string

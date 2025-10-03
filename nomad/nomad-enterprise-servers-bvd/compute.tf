@@ -130,12 +130,12 @@ resource "aws_launch_template" "nomad" {
     # https://developer.hashicorp.com/nomad/docs/configuration
 
     # prereqs
-    nomad_license_secret_arn               = ephemeral.vault_kv_secret_v2.license.data["nomad_enterprise"]
-    nomad_gossip_encryption_key_secret_arn = var.nomad_gossip_encryption_key_secret_arn
-    nomad_tls_cert_secret_arn              = var.nomad_tls_cert_secret_arn == null ? "NONE" : var.nomad_tls_cert_secret_arn
-    nomad_tls_privkey_secret_arn           = var.nomad_tls_privkey_secret_arn == null ? "NONE" : var.nomad_tls_privkey_secret_arn
-    nomad_tls_ca_bundle_secret_arn         = var.nomad_tls_ca_bundle_secret_arn == null ? "NONE" : var.nomad_tls_ca_bundle_secret_arn
-    additional_package_names               = join(" ", var.additional_package_names)
+    nomad_license_secret_arn       = ephemeral.vault_kv_secret_v2.license.data["nomad_enterprise"]
+    nomad_gossip_encryption_key    = random_id.nomad_gossip_key.hex
+    nomad_tls_cert_secret_arn      = var.nomad_tls_cert_secret_arn == null ? "NONE" : var.nomad_tls_cert_secret_arn
+    nomad_tls_privkey_secret_arn   = var.nomad_tls_privkey_secret_arn == null ? "NONE" : var.nomad_tls_privkey_secret_arn
+    nomad_tls_ca_bundle_secret_arn = var.nomad_tls_ca_bundle_secret_arn == null ? "NONE" : var.nomad_tls_ca_bundle_secret_arn
+    additional_package_names       = join(" ", var.additional_package_names)
 
     # Nomad settings
     nomad_version               = var.nomad_version
@@ -148,9 +148,7 @@ resource "aws_launch_template" "nomad" {
     cni_install_url             = format("https://github.com/containernetworking/plugins/releases/download/v%s/cni-plugins-linux-%s-v%s.tgz", var.cni_version, var.nomad_architecture, var.cni_version)
     aws_region                  = var.aws_region
     nomad_tls_enabled           = var.nomad_tls_enabled
-    nomad_acl_enabled           = var.nomad_acl_enabled
     nomad_audit_logging_enabled = var.nomad_audit_logging_enabled
-    nomad_client                = var.nomad_client
     nomad_server                = var.nomad_server
     nomad_datacenter            = var.nomad_datacenter
     nomad_region                = var.nomad_region == null ? var.aws_region : var.nomad_region

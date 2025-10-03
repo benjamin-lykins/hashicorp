@@ -8,7 +8,6 @@
 #------------------------------------------------------------------------------
 
 resource "vault_mount" "nomad" {
-  count = var.use_vault ? 1 : 0
 
   path        = "nomad-${var.nomad_region}/"
   type        = "kv"
@@ -27,9 +26,8 @@ resource "random_id" "nomad_gossip_key" {
 
 # Store the key in Vault
 resource "vault_kv_secret_v2" "nomad_gossip_key" {
-  count = var.use_vault ? 1 : 0
 
-  mount               = one(vault_mount.nomad.*.path)
+  mount               = vault_mount.nomad.path
   name                = "gossip_key"
   delete_all_versions = true
   data_json = jsonencode(
@@ -49,8 +47,7 @@ resource "random_uuid" "nomad_bootstrap_token" {}
 
 # Store the token in Vault
 resource "vault_kv_secret_v2" "nomad_bootstrap_token" {
-  count = var.use_vault ? 1 : 0
-  mount = one(vault_mount.nomad.*.path)
+  mount = vault_mount.nomad.path
   name  = "bootstrap_acl_token"
   data_json = jsonencode(
     {
@@ -63,13 +60,14 @@ resource "vault_kv_secret_v2" "nomad_bootstrap_token" {
 # Nomad TLS 
 #------------------------------------------------------------------------------
 
+##TODO: Add support for cert generation via Vault PKI.
+
 #------------------------------------------------------------------------------
 # Nomad License 
 #------------------------------------------------------------------------------
 # Recommended licenses are stored in vault manually instead of adding in a tfvars file. 
 
 ephemeral "vault_kv_secret_v2" "license" {
-  count = var.use_vault ? 1 : 0
 
   mount = var.vault_license_mount
   name  = var.vault_license_secret

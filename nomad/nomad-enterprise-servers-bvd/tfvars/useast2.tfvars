@@ -13,7 +13,6 @@ nomad_tls_ca_bundle_secret_arn         = "arn:aws:secretsmanager:us-east-2:05075
 additional_package_names               = ["htop"]
 
 # --- Nomad Configuration Settings --- # 
-nomad_acl_enabled        = false
 nomad_tls_enabled        = true
 nomad_client             = false
 nomad_server             = true

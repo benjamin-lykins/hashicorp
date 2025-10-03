@@ -146,7 +146,7 @@ function install_runtime {
     log "INFO" "Done installing runtime."
 }
 
-function retrieve_license_from_awssm {
+function add_nomad_license {
     local SECRET_ARN="$1"
     local SECRET_REGION=$AWS_REGION
 
@@ -181,21 +181,6 @@ function retrieve_certs_from_awssm {
         log "WARNING" "Did not detect AWS Secrets Manager secret ARN. Setting value of secret to what was passed in."
         CERT_DATA="$SECRET_ARN"
         echo "$CERT_DATA" | base64 -d >$DESTINATION_PATH
-    fi
-}
-
-function retrieve_gossip_encryption_key_from_awssm {
-    local SECRET_ARN="$1"
-    local SECRET_REGION=$AWS_REGION
-    if [[ -z "$SECRET_ARN" ]]; then
-        log "ERROR" "Secret ARN cannot be empty. Exiting."
-        exit_script 5   
-    elif [[ "$SECRET_ARN" == arn:aws:secretsmanager:* ]]; then
-        log "INFO" "Retrieving value of secret '$SECRET_ARN' from AWS Secrets Manager."
-        GOSSIP_ENCRYPTION_KEY=$(aws secretsmanager get-secret-value --region $SECRET_REGION --secret-id $SECRET_ARN --query SecretString --output text)
-    else
-        log "WARNING" "Did not detect AWS Secrets Manager secret ARN. Setting value of secret to what was passed in."
-        GOSSIP_ENCRYPTION_KEY="$SECRET_ARN"
     fi
 }
 
@@ -275,10 +260,9 @@ function generate_nomad_config {
 
 # Full configuration options can be found at https://developer.hashicorp.com/nomad/docs/configuration
 
-%{ if nomad_acl_enabled }
 acl {
   enabled = true
-}%{ endif }
+}
 
 data_dir  = "/opt/nomad/data"
 bind_addr = "0.0.0.0"
@@ -310,7 +294,7 @@ server {
 
   bootstrap_expect = "${nomad_nodes}"
   license_path     = "$NOMAD_LICENSE_PATH"
-  encrypt          = "$GOSSIP_ENCRYPTION_KEY"
+  encrypt          = "${nomad_gossip_encryption_key}"
   redundancy_zone  = "$AVAILABILITY_ZONE"
   
 
@@ -474,8 +458,7 @@ function main {
   configure_sysctl
   %{ endif ~}
   %{ if nomad_server ~}
-  retrieve_license_from_awssm "${nomad_license_secret_arn}"
-  retrieve_gossip_encryption_key_from_awssm "${nomad_gossip_encryption_key_secret_arn}"
+  add_nomad_license "${nomad_license_secret_arn}"
   %{ endif ~}
   %{ if nomad_tls_enabled ~}
   retrieve_certs_from_awssm "${nomad_tls_cert_secret_arn}" "$NOMAD_DIR_TLS/cert.pem"
