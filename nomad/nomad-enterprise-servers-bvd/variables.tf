@@ -417,3 +417,30 @@ variable "ec2_allow_ssm" {
   description = "Boolean to attach the `AmazonSSMManagedInstanceCore` policy to the Nomad instance role, allowing the SSM agent (if present) to function."
   default     = false
 }
+
+#------------------------------------------------------------------------------
+# Vault
+#------------------------------------------------------------------------------
+
+variable "use_vault" {
+  type        = bool
+  description = "Leverage an existing Vault setup, instead of AWS Secrets Manager."
+  default     = true
+}
+
+variable "vault_license_mount" {
+  type        = string
+  description = "The path at which the license secret engine is mounted in Vault"
+  default     = "hashicorp/licenses/"
+}
+
+variable "vault_license_secret" {
+  type        = string
+  description = "The name of the license secret in Vault"
+  default     = null
+
+  validation {
+    condition     = var.vault_license_mount != null && var.vault_license_secret != null
+    error_message = "If using Vault for license management (var.vault_license_mount), you must provide a valid secret name (var.vault_license_secret)."
+  }
+}

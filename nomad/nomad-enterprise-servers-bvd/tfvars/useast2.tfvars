@@ -49,3 +49,9 @@ create_route53_nomad_dns_record      = true
 route53_nomad_hosted_zone_name       = "benjamin-lykins.sbx.hashidemos.io"
 route53_nomad_hosted_zone_is_private = false
 nomad_fqdn                           = "lab-nomad.benjamin-lykins.sbx.hashidemos.io"
+
+
+# --- Vault --- #
+use_vault            = true
+vault_license_mount  = "licenses"
+vault_license_secret = "hashicorp"

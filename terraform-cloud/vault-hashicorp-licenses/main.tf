@@ -1,5 +1,5 @@
 resource "vault_mount" "licenses" {
-  path        = "hashicorp/licenses/"
+  path        = "licenses/"
   type        = "kv"
   options     = { version = "2" }
   description = "KV Version 2 secret engine mount"
@@ -8,7 +8,7 @@ resource "vault_mount" "licenses" {
 
 resource "vault_kv_secret_v2" "licenses" {
   mount               = vault_mount.licenses.path
-  name                = "licenses"
+  name                = "hashicorp"
   delete_all_versions = true
   data_json = jsonencode(
     {

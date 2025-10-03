@@ -1,8 +1,15 @@
+# Just a quick note. I would like ot use more ephemeral resources, but at this point
+# Not every resource supports it, yet. 
+# Thinking specifically with the random resources. 
+
+
 #------------------------------------------------------------------------------
 # Vault Secret Engine for Nomad
 #------------------------------------------------------------------------------
 
 resource "vault_mount" "nomad" {
+  count = var.use_vault ? 1 : 0
+
   path        = "nomad-${var.nomad_region}/"
   type        = "kv"
   options     = { version = "2" }
@@ -20,7 +27,9 @@ resource "random_id" "nomad_gossip_key" {
 
 # Store the key in Vault
 resource "vault_kv_secret_v2" "nomad_gossip_key" {
-  mount               = vault_mount.nomad.path
+  count = var.use_vault ? 1 : 0
+
+  mount               = one(vault_mount.nomad.*.path)
   name                = "gossip_key"
   delete_all_versions = true
   data_json = jsonencode(
@@ -40,9 +49,9 @@ resource "random_uuid" "nomad_bootstrap_token" {}
 
 # Store the token in Vault
 resource "vault_kv_secret_v2" "nomad_bootstrap_token" {
-  mount               = vault_mount.nomad.path
-  name                = "bootstrap_acl_token"
-  delete_all_versions = true
+  count = var.use_vault ? 1 : 0
+  mount = one(vault_mount.nomad.*.path)
+  name  = "bootstrap_acl_token"
   data_json = jsonencode(
     {
       key = random_uuid.nomad_bootstrap_token.result
@@ -51,7 +60,17 @@ resource "vault_kv_secret_v2" "nomad_bootstrap_token" {
 }
 
 #------------------------------------------------------------------------------
-# Nomad TLS Settings
+# Nomad TLS 
 #------------------------------------------------------------------------------
 
+#------------------------------------------------------------------------------
+# Nomad License 
+#------------------------------------------------------------------------------
+# Recommended licenses are stored in vault manually instead of adding in a tfvars file. 
 
+ephemeral "vault_kv_secret_v2" "db_secret" {
+  count = var.use_vault ? 1 : 0
+
+  mount = var.vault_license_mount
+  name  = var.vault_license_secret
+}
