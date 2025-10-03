@@ -131,7 +131,7 @@ resource "aws_launch_template" "nomad" {
 
     # prereqs
     nomad_license               = data.vault_kv_secret_v2.license.data["nomad_enterprise"]
-    nomad_gossip_encryption_key = random_id.nomad_gossip_key.hex
+    nomad_gossip_encryption_key = random_id.nomad_gossip_key.b64_std
     nomad_bootstrap_token       = random_uuid.nomad_bootstrap_token.result
     # nomad_tls_cert_secret_arn      = var.nomad_tls_cert_secret_arn == null ? "NONE" : var.nomad_tls_cert_secret_arn
     # nomad_tls_privkey_secret_arn   = var.nomad_tls_privkey_secret_arn == null ? "NONE" : var.nomad_tls_privkey_secret_arn
@@ -141,7 +141,7 @@ resource "aws_launch_template" "nomad" {
     # Nomad settings
     nomad_version            = var.nomad_version
     nomad_install_url        = format("https://releases.hashicorp.com/nomad/%s/nomad_%s_linux_%s.zip", var.nomad_version, var.nomad_version, var.nomad_architecture)
-    vault_version            = var.nomad_version
+    vault_version            = var.vault_version
     vault_install_url        = format("https://releases.hashicorp.com/vault/%s/vault_%s_linux_%s.zip", var.vault_version, var.vault_version, var.vault_architecture)
     aws_region               = var.aws_region
     nomad_datacenter         = var.nomad_datacenter

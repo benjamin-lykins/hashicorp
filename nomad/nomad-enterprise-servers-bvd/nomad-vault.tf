@@ -32,7 +32,7 @@ resource "vault_kv_secret_v2" "nomad_gossip_key" {
   delete_all_versions = true
   data_json = jsonencode(
     {
-      key = random_id.nomad_gossip_key.hex
+      key = random_id.nomad_gossip_key.b64_std
     }
   )
 }
