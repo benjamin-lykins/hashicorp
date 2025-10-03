@@ -68,7 +68,7 @@ resource "vault_kv_secret_v2" "nomad_bootstrap_token" {
 #------------------------------------------------------------------------------
 # Recommended licenses are stored in vault manually instead of adding in a tfvars file. 
 
-ephemeral "vault_kv_secret_v2" "db_secret" {
+ephemeral "vault_kv_secret_v2" "license" {
   count = var.use_vault ? 1 : 0
 
   mount = var.vault_license_mount
