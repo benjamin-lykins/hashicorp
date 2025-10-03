@@ -47,8 +47,9 @@ resource "random_uuid" "nomad_bootstrap_token" {}
 
 # Store the token in Vault
 resource "vault_kv_secret_v2" "nomad_bootstrap_token" {
-  mount = vault_mount.nomad.path
-  name  = "bootstrap_acl_token"
+  mount               = vault_mount.nomad.path
+  name                = "bootstrap_acl_token"
+  delete_all_versions = true
   data_json = jsonencode(
     {
       key = random_uuid.nomad_bootstrap_token.result
