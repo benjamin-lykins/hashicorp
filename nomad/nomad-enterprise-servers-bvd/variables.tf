@@ -30,35 +30,6 @@ variable "common_tags" {
 #------------------------------------------------------------------------------
 # Prereqs
 #------------------------------------------------------------------------------
-variable "nomad_license_secret_arn" {
-  type        = string
-  description = "ARN of AWS Secrets Manager secret for Nomad license file."
-  default     = null
-}
-
-variable "nomad_gossip_encryption_key_secret_arn" {
-  type        = string
-  description = "ARN of AWS Secrets Manager secret for Nomad gossip encryption key."
-  default     = null
-}
-
-variable "nomad_tls_cert_secret_arn" {
-  type        = string
-  description = "ARN of AWS Secrets Manager secret for Nomad TLS certificate in PEM format. Secret must be stored as a base64-encoded string."
-  default     = null
-}
-
-variable "nomad_tls_privkey_secret_arn" {
-  type        = string
-  description = "ARN of AWS Secrets Manager secret for Nomad TLS private key in PEM format. Secret must be stored as a base64-encoded string."
-  default     = null
-}
-
-variable "nomad_tls_ca_bundle_secret_arn" {
-  type        = string
-  description = "ARN of AWS Secrets Manager secret for private/custom TLS Certificate Authority (CA) bundle in PEM format. Secret must be stored as a base64-encoded string."
-  default     = null
-}
 
 variable "additional_package_names" {
   type        = set(string)
@@ -81,12 +52,6 @@ variable "nomad_datacenter" {
   description = "Specifies the data center of the local agent. A datacenter is an abstract grouping of clients within a region. Clients are not required to be in the same datacenter as the servers they are joined with, but do need to be in the same region."
 }
 
-variable "nomad_ui_enabled" {
-  type        = bool
-  description = "Boolean to enable the Nomad UI."
-  default     = true
-}
-
 variable "nomad_upstream_servers" {
   type        = list(string)
   description = "List of Nomad server addresses to join the Nomad client with."
@@ -105,13 +70,6 @@ variable "nomad_upstream_tag_value" {
   default     = null
 }
 
-
-variable "nomad_audit_logging_enabled" {
-  type        = bool
-  description = "Boolean to enable audit logging for Nomad."
-  default     = true
-}
-
 variable "nomad_enable_redundancy_zones" {
   type        = bool
   description = "Boolean to enable Nomad server redundancy zones for higher availability."
@@ -121,20 +79,10 @@ variable "nomad_enable_redundancy_zones" {
 variable "nomad_version" {
   type        = string
   description = "Version of Nomad to install."
-  default     = "1.9.0+ent"
+  default     = "1.10.0+ent"
   validation {
     condition     = can(regex("^[0-9]+\\.[0-9]+\\.[0-9]+\\+ent$", var.nomad_version))
     error_message = "Value must be in the format 'X.Y.Z+ent'."
-  }
-}
-
-variable "cni_version" {
-  type        = string
-  description = "Version of CNI plugin to install."
-  default     = "1.6.0"
-  validation {
-    condition     = can(regex("^[0-9]+\\.[0-9]+\\.[0-9]+$", var.cni_version))
-    error_message = "Value must be in the format 'X.Y.Z'."
   }
 }
 
