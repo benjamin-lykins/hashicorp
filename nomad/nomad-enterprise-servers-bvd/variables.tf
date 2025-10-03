@@ -118,12 +118,6 @@ variable "nomad_enable_redundancy_zones" {
   default     = false
 }
 
-variable "autopilot_health_enabled" {
-  type        = bool
-  default     = true
-  description = "Whether autopilot upgrade migration validation is performed for server nodes at boot-time"
-}
-
 variable "nomad_version" {
   type        = string
   description = "Version of Nomad to install."
@@ -143,8 +137,6 @@ variable "cni_version" {
     error_message = "Value must be in the format 'X.Y.Z'."
   }
 }
-
-
 
 variable "nomad_architecture" {
   type        = string
@@ -416,5 +408,25 @@ variable "vault_license_secret" {
   validation {
     condition     = var.vault_license_mount != null && var.vault_license_secret != null
     error_message = "If using Vault for license management (var.vault_license_mount), you must provide a valid secret name (var.vault_license_secret)."
+  }
+}
+
+variable "vault_version" {
+  type        = string
+  description = "Version of Vault to install, which is used to generate certificates."
+  default     = "1.20.4"
+  validation {
+    condition     = can(regex("^[0-9]+\\.[0-9]+\\.[0-9]+$", var.vault_version))
+    error_message = "Value must be in the format 'X.Y.Z'."
+  }
+}
+
+variable "vault_architecture" {
+  type        = string
+  description = "Architecture of the Vault binary to install."
+  default     = "amd64"
+  validation {
+    condition     = can(regex("^(amd64|arm64)$", var.vault_architecture))
+    error_message = "value must be either 'amd64' or 'arm64'."
   }
 }

@@ -293,7 +293,6 @@ server {
   }
 }
 
-%{ if autopilot_health_enabled }
 autopilot {
     cleanup_dead_servers      = true
     last_contact_threshold    = "200ms"
@@ -303,9 +302,6 @@ autopilot {
     disable_upgrade_migration = false
     enable_custom_upgrades    = false
 }
-%{ endif }
-
-
 
 tls {
   http      = true
