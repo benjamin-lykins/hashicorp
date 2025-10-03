@@ -138,28 +138,19 @@ resource "aws_launch_template" "nomad" {
     additional_package_names       = join(" ", var.additional_package_names)
 
     # Nomad settings
-    nomad_version               = var.nomad_version
-    systemd_dir                 = "/etc/systemd/system",
-    nomad_dir_bin               = "/usr/bin",
-    cni_dir_bin                 = "/opt/cni/bin",
-    nomad_dir_config            = "/etc/nomad.d",
-    nomad_dir_home              = "/opt/nomad",
-    nomad_install_url           = format("https://releases.hashicorp.com/nomad/%s/nomad_%s_linux_%s.zip", var.nomad_version, var.nomad_version, var.nomad_architecture)
-    cni_install_url             = format("https://github.com/containernetworking/plugins/releases/download/v%s/cni-plugins-linux-%s-v%s.tgz", var.cni_version, var.nomad_architecture, var.cni_version)
-    aws_region                  = var.aws_region
-    nomad_tls_enabled           = var.nomad_tls_enabled
-    nomad_audit_logging_enabled = var.nomad_audit_logging_enabled
-    nomad_server                = var.nomad_server
-    nomad_datacenter            = var.nomad_datacenter
-    nomad_region                = var.nomad_region == null ? var.aws_region : var.nomad_region
-    nomad_ui_enabled            = var.nomad_ui_enabled
-    nomad_upstream_servers      = var.nomad_upstream_servers
-    nomad_upstream_tag_key      = var.nomad_upstream_tag_key
-    nomad_upstream_tag_value    = var.nomad_upstream_tag_value
-    nomad_nodes                 = var.nomad_nodes
-    asg_name                    = local.template_name
-    template_name               = local.template_name
-    autopilot_health_enabled    = var.autopilot_health_enabled
+    nomad_version            = var.nomad_version
+    nomad_install_url        = format("https://releases.hashicorp.com/nomad/%s/nomad_%s_linux_%s.zip", var.nomad_version, var.nomad_version, var.nomad_architecture)
+    aws_region               = var.aws_region
+    nomad_server             = var.nomad_server
+    nomad_datacenter         = var.nomad_datacenter
+    nomad_region             = var.nomad_region == null ? var.aws_region : var.nomad_region
+    nomad_upstream_servers   = var.nomad_upstream_servers
+    nomad_upstream_tag_key   = var.nomad_upstream_tag_key
+    nomad_upstream_tag_value = var.nomad_upstream_tag_value
+    nomad_nodes              = var.nomad_nodes
+    asg_name                 = local.template_name
+    template_name            = local.template_name
+    autopilot_health_enabled = var.autopilot_health_enabled
   }))
   instance_initiated_shutdown_behavior = "terminate"
 

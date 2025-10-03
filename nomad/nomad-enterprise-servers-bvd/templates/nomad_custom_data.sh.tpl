@@ -2,17 +2,17 @@
 set -euo pipefail
 
 LOGFILE="/var/log/nomad-cloud-init.log"
-SYSTEMD_DIR="${systemd_dir}"
-NOMAD_DIR_CONFIG="${nomad_dir_config}"
+SYSTEMD_DIR="/etc/systemd/system"
+NOMAD_DIR_CONFIG="/etc/nomad.d"
 NOMAD_CONFIG_PATH="$NOMAD_DIR_CONFIG/nomad.hcl"
-NOMAD_DIR_TLS="${nomad_dir_config}/tls"
-NOMAD_DIR_DATA="${nomad_dir_home}/data"
-NOMAD_DIR_LICENSE="${nomad_dir_home}/license"
-NOMAD_DIR_ALLOC_MOUNTS="${nomad_dir_home}/alloc_mounts"
+NOMAD_DIR_TLS="/opt/nomad/tls"
+NOMAD_DIR_DATA="/opt/nomad/data"
+NOMAD_DIR_LICENSE="/opt/nomad/license"
+NOMAD_DIR_ALLOC_MOUNTS="/opt/nomad/alloc_mounts"
 NOMAD_LICENSE_PATH="$NOMAD_DIR_LICENSE/license.hclic"
 NOMAD_DIR_LOGS="/var/log/nomad"
-NOMAD_DIR_BIN="${nomad_dir_bin}"
-CNI_DIR_BIN="${cni_dir_bin}"
+NOMAD_DIR_BIN="/usr/bin"
+VAULT_DIR_BIN="/usr/bin"
 NOMAD_USER="nomad"
 NOMAD_GROUP="nomad"
 NOMAD_INSTALL_URL="${nomad_install_url}"
@@ -231,25 +231,19 @@ function install_nomad_binary {
     log "INFO" "Done installing Nomad binary."
 }
 
-function install_cni_plugins {
-    log "INFO" "Installing CNI plugins..."
+function install_vault_binary {
+    log "INFO" "Installing Vault binary to: $VAULT_DIR_BIN..."
 
-    # Download the CNI plugins
-    sudo curl -Lso $CNI_DIR_BIN/cni-plugins.tgz "${cni_install_url}"
+    # Download the Vault binary to the dedicated bin directory
+    sudo curl -so $VAULT_DIR_BIN/vault.zip $VAULT_INSTALL_URL
 
-    # Untar the CNI plugins
-    tar -C $CNI_DIR_BIN -xzf $CNI_DIR_BIN/cni-plugins.tgz
-}
+    # Unzip the Vault binary
+    sudo unzip $VAULT_DIR_BIN/vault.zip vault -d $VAULT_DIR_BIN
+    sudo unzip $VAULT_DIR_BIN/vault.zip -x vault -d $VAULT_DIR_LICENSE
 
-function configure_sysctl {
-    log "INFO" "Configuring sysctl settings..."
+    sudo rm $VAULT_DIR_BIN/vault.zip
 
-    # Configure sysctl settings for Nomad
-    tee -a /etc/sysctl.d/bridge.conf <<-EOF
-    net.bridge.bridge-nf-call-arptables = 1
-    net.bridge.bridge-nf-call-ip6tables = 1
-    net.bridge.bridge-nf-call-iptables = 1
-EOF
+    log "INFO" "Done installing Vault binary."
 }
 
 function generate_nomad_config {
@@ -276,7 +270,6 @@ region     = "${nomad_region}"
 enable_syslog   = true
 syslog_facility = "daemon"
 
-%{ if nomad_audit_logging_enabled }
 audit {
   enabled = true
   sink "audit" {
@@ -286,7 +279,7 @@ audit {
     path               = "/opt/nomad/data/audit/audit.log"
   }
 }
-%{ endif }
+
 
 %{ if nomad_server }
 server {
@@ -316,36 +309,16 @@ autopilot {
 %{ endif }
 %{ endif }
 
-%{ if nomad_tls_enabled }
+
 tls {
   http      = true
   rpc       = true
   cert_file = "$NOMAD_DIR_TLS/cert.pem" 
   key_file  = "$NOMAD_DIR_TLS/key.pem"
-%{ if nomad_tls_ca_bundle_secret_arn != "NONE" ~}
   ca_file   = "$NOMAD_DIR_TLS/bundle.pem"
-%{ endif ~}
   verify_server_hostname = true
   verify_https_client    = false
 }
-%{ endif }
-
-%{ if nomad_client }
-client {
-  enabled = true
-%{ if nomad_upstream_servers != null ~}
-servers = [
-%{ for addr in formatlist("%s",nomad_upstream_servers) ~}
-   "${addr}",
-%{ endfor ~}
-]
-%{ else }
-  server_join {
-    retry_join = ["provider=aws addr_type=private_v4 tag_key=${nomad_upstream_tag_key} tag_value=${nomad_upstream_tag_value}"]
-  }
-%{ endif }
-}
-%{ endif }
 
 telemetry {
   collection_interval = "1s"
@@ -355,9 +328,6 @@ telemetry {
   publish_node_metrics = true
 }
 
-ui {
-  enabled = ${ nomad_ui_enabled }
-}
 EOF
 
   chown $NOMAD_USER:$NOMAD_GROUP $NOMAD_CONFIG_PATH
@@ -452,21 +422,8 @@ function main {
   user_group_create
   directory_create
   install_nomad_binary
-  %{ if nomad_client ~}
-  install_runtime
-  install_cni_plugins
-  configure_sysctl
-  %{ endif ~}
-  %{ if nomad_server ~}
+
   add_nomad_license "${nomad_license_secret_arn}"
-  %{ endif ~}
-  %{ if nomad_tls_enabled ~}
-  retrieve_certs_from_awssm "${nomad_tls_cert_secret_arn}" "$NOMAD_DIR_TLS/cert.pem"
-  retrieve_certs_from_awssm "${nomad_tls_privkey_secret_arn}" "$NOMAD_DIR_TLS/key.pem"
-  %{ if nomad_tls_ca_bundle_secret_arn != "NONE" ~}
-  retrieve_certs_from_awssm "${nomad_tls_ca_bundle_secret_arn}" "$NOMAD_DIR_TLS/bundle.pem"
-  %{ endif ~}
-  %{ endif ~}
   generate_nomad_config
   template_nomad_systemd
   start_enable_nomad

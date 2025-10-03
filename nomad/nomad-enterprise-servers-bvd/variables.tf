@@ -69,10 +69,7 @@ variable "additional_package_names" {
 #------------------------------------------------------------------------------
 # Nomad Configuration Settings
 #------------------------------------------------------------------------------
-variable "nomad_client" {
-  type        = bool
-  description = "Boolean to enable the Nomad client agent."
-}
+
 
 variable "nomad_server" {
   type        = bool
@@ -114,11 +111,6 @@ variable "nomad_upstream_tag_value" {
   default     = null
 }
 
-variable "nomad_tls_enabled" {
-  type        = bool
-  description = "Boolean to enable TLS for Nomad."
-  default     = true
-}
 
 variable "nomad_audit_logging_enabled" {
   type        = bool
