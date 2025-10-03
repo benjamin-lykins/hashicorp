@@ -280,11 +280,8 @@ audit {
   }
 }
 
-
-%{ if nomad_server }
 server {
   enabled          = true
-
   bootstrap_expect = "${nomad_nodes}"
   license_path     = "$NOMAD_LICENSE_PATH"
   encrypt          = "${nomad_gossip_encryption_key}"
@@ -307,7 +304,7 @@ autopilot {
     enable_custom_upgrades    = false
 }
 %{ endif }
-%{ endif }
+
 
 
 tls {

@@ -70,12 +70,6 @@ variable "additional_package_names" {
 # Nomad Configuration Settings
 #------------------------------------------------------------------------------
 
-
-variable "nomad_server" {
-  type        = bool
-  description = "Boolean to enable the Nomad server agent."
-}
-
 variable "nomad_region" {
   type        = string
   description = "Specifies the region of the local agent. A region is an abstract grouping of datacenters. Clients are not required to be in the same region as the servers they are joined with, but do need to be in the same datacenter. If not specified, the region is set AWS region."

@@ -141,7 +141,6 @@ resource "aws_launch_template" "nomad" {
     nomad_version            = var.nomad_version
     nomad_install_url        = format("https://releases.hashicorp.com/nomad/%s/nomad_%s_linux_%s.zip", var.nomad_version, var.nomad_version, var.nomad_architecture)
     aws_region               = var.aws_region
-    nomad_server             = var.nomad_server
     nomad_datacenter         = var.nomad_datacenter
     nomad_region             = var.nomad_region == null ? var.aws_region : var.nomad_region
     nomad_upstream_servers   = var.nomad_upstream_servers
@@ -287,15 +286,12 @@ resource "aws_security_group" "nomad_rpc" {
   tags        = merge({ "Name" = "${var.friendly_name_prefix}-nomad-rpc-allow-ingress" }, var.common_tags)
 
   #  Allow Nomad Server API and RPC.
-  dynamic "ingress" {
-    for_each = var.nomad_server ? [1] : []
-    content {
-      description = "Nomad Server API"
-      from_port   = 4646
-      to_port     = 4647
-      protocol    = "tcp"
-      cidr_blocks = local.nomad_gossip_cidrs
-    }
+  ingress {
+    description = "Nomad Server API"
+    from_port   = 4646
+    to_port     = 4647
+    protocol    = "tcp"
+    cidr_blocks = local.nomad_gossip_cidrs
   }
 
   egress {
