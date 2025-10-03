@@ -373,6 +373,46 @@ function start_enable_nomad {
   log "[INFO]" "Done starting and enabling the nomad service."
 }
 
+function bootstrap_nomad {
+  log "INFO" "Bootstrapping Nomad cluster..."
+echo "Waiting nomad to come online"
+
+cat << EOF > /tmp/nomad_bootstrap.token
+${nomad_bootstrap_token}
+EOF
+
+NOMAD_BOOTSTRAP_TOKEN="/tmp/nomad_bootstrap"
+
+# Wait for nomad servers to come up and bootstrap nomad ACL
+for i in {1..12}; do
+    # capture stdout and stderr
+    set +e
+    sleep 5
+    OUTPUT=$(nomad acl bootstrap /tmp/nomad_bootstrap.token 2>&1)
+    if [ $? -ne 0 ]; then
+        log "[INFO]" "nomad acl bootstrap: $OUTPUT"
+        if [[ "$OUTPUT" = *"No cluster leader"* ]]; then
+            log "[INFO]" "nomad no cluster leader"
+            continue
+        else
+            log "[INFO]" "nomad already bootstrapped"
+            # Remove temp file
+            rm -f /tmp/nomad_bootstrap.token
+            exit 0
+        fi
+    fi
+    set -e
+
+    echo "$OUTPUT" | grep -i secret | awk -F '=' '{print $2}' | xargs | awk 'NF' > $NOMAD_BOOTSTRAP_TOKEN
+    if [ -s $NOMAD_BOOTSTRAP_TOKEN ]; then
+        log "[INFO]" "nomad bootstrapped"
+        # Remove temp file
+        rm -f /tmp/nomad_bootstrap.token
+        break
+    fi
+done
+}
+
 function exit_script {
   if [[ "$1" == 0 ]]; then
     log "INFO" "nomad_custom_data script finished successfully!"
@@ -395,7 +435,7 @@ function main {
   user_group_create
   directory_create
   install_nomad_binary
-  add_nomad_license "${nomad_license_secret_arn}"
+  add_nomad_license
   generate_nomad_config
   template_nomad_systemd
   start_enable_nomad

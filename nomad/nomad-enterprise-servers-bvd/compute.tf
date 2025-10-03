@@ -130,8 +130,9 @@ resource "aws_launch_template" "nomad" {
     # https://developer.hashicorp.com/nomad/docs/configuration
 
     # prereqs
-    nomad_license               = ephemeral.vault_kv_secret_v2.license.data["nomad_enterprise"]
+    nomad_license               = data.vault_kv_secret_v2.license.data["nomad_enterprise"]
     nomad_gossip_encryption_key = random_id.nomad_gossip_key.hex
+    nomad_bootstrap_token       = random_uuid.nomad_bootstrap_token.result
     # nomad_tls_cert_secret_arn      = var.nomad_tls_cert_secret_arn == null ? "NONE" : var.nomad_tls_cert_secret_arn
     # nomad_tls_privkey_secret_arn   = var.nomad_tls_privkey_secret_arn == null ? "NONE" : var.nomad_tls_privkey_secret_arn
     # nomad_tls_ca_bundle_secret_arn = var.nomad_tls_ca_bundle_secret_arn == null ? "NONE" : var.nomad_tls_ca_bundle_secret_arn
