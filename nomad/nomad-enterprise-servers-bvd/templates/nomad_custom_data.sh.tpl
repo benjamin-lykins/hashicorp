@@ -182,7 +182,7 @@ function directory_create {
     log "INFO" "Creating necessary directories..."
 
     # Define all directories needed as an array
-    directories=($NOMAD_DIR_CONFIG $NOMAD_DIR_DATA $NOMAD_DIR_TLS $NOMAD_DIR_LICENSE $NOMAD_DIR_LOGS $CNI_DIR_BIN $NOMAD_DIR_ALLOC_MOUNTS)
+    directories=($NOMAD_DIR_CONFIG $NOMAD_DIR_DATA $NOMAD_DIR_TLS $NOMAD_DIR_LICENSE $NOMAD_DIR_LOGS $NOMAD_DIR_ALLOC_MOUNTS)
 
     # Loop through each item in the array; create the directory and configure permissions
     for directory in "$${directories[@]}"; do
