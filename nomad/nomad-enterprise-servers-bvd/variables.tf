@@ -348,7 +348,7 @@ variable "vault_addr" {
   default     = null
 
   validation {
-    condition     = (var.vault_addr != null && can(regex("^https?://", var.vault_addr))) : true
+    condition     = var.vault_addr != null && can(regex("^https?://", var.vault_addr))
     error_message = "You must provide a valid Vault address (var.vault_addr) starting with http:// or https://."
   }
 
