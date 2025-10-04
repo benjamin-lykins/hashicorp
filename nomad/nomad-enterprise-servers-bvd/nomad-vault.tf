@@ -63,6 +63,84 @@ resource "vault_kv_secret_v2" "nomad_bootstrap_token" {
 
 ##TODO: Add support for cert generation via Vault PKI.
 
+variable "region" {
+  type    = string
+  default = "us-east-1" # Change per cluster/region
+}
+
+variable "vault_addr" {
+  type    = string
+  default = "https://lykins-vault-cluster-public-vault-c88a9e9f.e7ddc59e.z1.hashicorp.cloud:8200"
+}
+
+resource "vault_mount" "pki_int" {
+  path                      = "pki-int-${var.region}"
+  type                      = "pki"
+  description               = "Intermediate PKI for Nomad cluster in ${var.nomad_region}"
+  default_lease_ttl_seconds = 31536000 # 1 year
+  max_lease_ttl_seconds     = 31536000
+}
+
+
+resource "vault_pki_secret_backend_intermediate_cert_request" "int_csr" {
+  backend      = vault_mount.pki_int.path
+  type         = "internal"
+  common_name  = "Nomad Intermediate CA ${var.nomad_region}"
+  organization = ["LykinsCorp"]
+  key_type     = "rsa"
+  key_bits     = 4096
+}
+
+
+resource "vault_pki_secret_backend_root_sign_intermediate" "signed_int" {
+  backend     = "pki-root" # Root CA backend path
+  csr         = vault_pki_secret_backend_intermediate_cert_request.int_csr.csr
+  common_name = "Nomad Intermediate CA ${var.nomad_region}"
+  ttl         = "43800h" # 5 years
+}
+
+
+resource "vault_pki_secret_backend_intermediate_set_signed" "int_cert" {
+  backend     = vault_mount.pki_int.path
+  certificate = vault_pki_secret_backend_root_sign_intermediate.signed_int.certificate
+}
+
+
+resource "vault_pki_secret_backend_config_urls" "int_urls" {
+  backend                 = vault_mount.pki_int.path
+  issuing_certificates    = ["${var.vault_addr}/v1/pki-int-${var.nomad_region}/ca"]
+  crl_distribution_points = ["${var.vault_addr}/v1/pki-int-${var.nomad_region}/crl"]
+  ocsp_servers            = ["${var.vault_addr}/v1/pki-int-${var.nomad_region}/ocsp"]
+}
+
+
+resource "vault_pki_secret_backend_crl_config" "crl" {
+  backend = vault_mount.pki_int.path
+  expiry  = "72h"
+}
+
+
+# Nomad server cert role
+resource "vault_pki_secret_backend_role" "nomad_server" {
+  backend          = vault_mount.pki_int.path
+  name             = "nomad-server"
+  allowed_domains  = ["${var.route53_nomad_hosted_zone_name}"]
+  allow_subdomains = true
+  max_ttl          = "8760h" # 1 year
+  allow_any_name   = false
+}
+
+# # Nomad client cert role
+# resource "vault_pki_secret_backend_role" "nomad_client" {
+#   backend          = vault_mount.pki_int.path
+#   name             = "nomad-client"
+#   allowed_domains  = ["nomad.${var.nomad_region}.example.com"]
+#   allow_subdomains = true
+#   max_ttl          = "8760h" # 1 year
+#   allow_any_name   = false
+# }
+
+
 #------------------------------------------------------------------------------
 # Nomad License 
 #------------------------------------------------------------------------------
