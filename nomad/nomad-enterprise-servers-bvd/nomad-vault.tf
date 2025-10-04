@@ -63,18 +63,9 @@ resource "vault_kv_secret_v2" "nomad_bootstrap_token" {
 
 ##TODO: Add support for cert generation via Vault PKI.
 
-variable "region" {
-  type    = string
-  default = "us-east-1" # Change per cluster/region
-}
-
-variable "vault_addr" {
-  type    = string
-  default = "https://lykins-vault-cluster-public-vault-c88a9e9f.e7ddc59e.z1.hashicorp.cloud:8200"
-}
 
 resource "vault_mount" "pki_int" {
-  path                      = "pki-int-${var.region}"
+  path                      = "pki-int-${var.nomad_region}"
   type                      = "pki"
   description               = "Intermediate PKI for Nomad cluster in ${var.nomad_region}"
   default_lease_ttl_seconds = 31536000 # 1 year
