@@ -114,7 +114,7 @@ resource "vault_pki_secret_backend_crl_config" "crl" {
 # Nomad server cert role
 resource "vault_pki_secret_backend_role" "nomad_server" {
   backend          = vault_mount.pki_int.path
-  name             = "${var.nomad_region}nomad-server"
+  name             = "${var.nomad_region}-nomad-server"
   allowed_domains  = ["${var.route53_nomad_hosted_zone_name}"]
   allow_subdomains = true
   max_ttl          = "8760h" # 1 year
