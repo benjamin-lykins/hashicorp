@@ -25,3 +25,10 @@ resource "vault_pki_secret_backend_config_urls" "root_urls" {
   crl_distribution_points = ["https://lykins-vault-cluster-public-vault-c88a9e9f.e7ddc59e.z1.hashicorp.cloud:8200/v1/pki-root/crl"]
   ocsp_servers            = ["https://lykins-vault-cluster-public-vault-c88a9e9f.e7ddc59e.z1.hashicorp.cloud:8200/v1/pki-root/ocsp"]
 }
+
+# Enable AppRole auth method 
+# Use later for Nomad to authenticate and retrieve certs
+resource "vault_auth_backend" "approle" {
+  type = "approle"
+  path = "approle"
+}

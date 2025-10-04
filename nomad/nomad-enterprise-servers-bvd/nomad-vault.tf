@@ -114,7 +114,7 @@ resource "vault_pki_secret_backend_crl_config" "crl" {
 # Nomad server cert role
 resource "vault_pki_secret_backend_role" "nomad_server" {
   backend          = vault_mount.pki_int.path
-  name             = "nomad-server"
+  name             = "${var.nomad_region}nomad-server"
   allowed_domains  = ["${var.route53_nomad_hosted_zone_name}"]
   allow_subdomains = true
   max_ttl          = "8760h" # 1 year
@@ -130,6 +130,24 @@ resource "vault_pki_secret_backend_role" "nomad_server" {
 #   max_ttl          = "8760h" # 1 year
 #   allow_any_name   = false
 # }
+
+resource "vault_policy" "tls_policy" {
+  name   = "tls-policy"
+  policy = <<EOT
+path "pki-int-${var.nomad_region}/issue/nomad-server" {
+  capabilities = ["update"]
+}
+EOT
+}
+
+resource "vault_approle_auth_backend_role" "nomad_server" {
+  backend        = vault_auth_backend.approle.path
+  role_name      = "${var.nomad_region}-nomad-server"
+  token_policies = [vault_policy.tls_policy.name]
+  token_ttl      = "1h"
+  token_max_ttl  = "4h"
+  secret_id_ttl  = "24h"
+}
 
 
 #------------------------------------------------------------------------------
