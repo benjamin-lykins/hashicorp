@@ -342,6 +342,18 @@ variable "ec2_allow_ssm" {
 # Vault
 #------------------------------------------------------------------------------
 
+variable "vault_addr" {
+  type        = string
+  description = "Address of the Vault server to use for certificate generation and license management."
+  default     = null
+
+  validation {
+    condition     = var.use_vault == true ? (var.vault_addr != null && can(regex("^https?://", var.vault_addr))) : true
+    error_message = "When using Vault (var.use_vault), you must provide a valid Vault address (var.vault_addr) starting with http:// or https://."
+  }
+
+}
+
 variable "vault_license_mount" {
   type        = string
   description = "The path at which the license secret engine is mounted in Vault"

@@ -39,6 +39,6 @@ nomad_fqdn                           = "lab-nomad.benjamin-lykins.sbx.hashidemos
 
 
 # --- Vault --- #
-use_vault            = true
+vault_addr           = "https://lykins-vault-cluster-public-vault-c88a9e9f.e7ddc59e.z1.hashicorp.cloud:8200"
 vault_license_mount  = "licenses"
 vault_license_secret = "hashicorp"

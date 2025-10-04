@@ -77,7 +77,7 @@ resource "vault_pki_secret_backend_intermediate_cert_request" "int_csr" {
   backend      = vault_mount.pki_int.path
   type         = "internal"
   common_name  = "Nomad Intermediate CA ${var.nomad_region}"
-  organization = ["LykinsCorp"]
+  organization = "LykinsCorp"
   key_type     = "rsa"
   key_bits     = 4096
 }
