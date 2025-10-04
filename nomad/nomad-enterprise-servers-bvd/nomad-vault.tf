@@ -144,9 +144,9 @@ resource "vault_approle_auth_backend_role" "nomad_server" {
   backend        = "approle"
   role_name      = "${var.nomad_region}-nomad-server"
   token_policies = [vault_policy.tls_policy.name]
-  token_ttl      = "1h"
-  token_max_ttl  = "4h"
-  secret_id_ttl  = "24h"
+  token_ttl      = 3600
+  token_max_ttl  = 14400
+  secret_id_ttl  = 86400
 }
 
 
