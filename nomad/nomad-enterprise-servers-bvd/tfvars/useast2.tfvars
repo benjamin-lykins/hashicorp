@@ -16,13 +16,13 @@ nomad_architecture     = "amd64"
 
 
 # --- Networking --- #
-vpc_id                   = "vpc-0e9acb5db8f3e3855"
-instance_subnets         = ["subnet-04d78b86eb6584607", "subnet-0d1f0a26b6b25ab5a", "subnet-090dc2b46d57022d3"]
+vpc_id                   = "vpc-034cbeee9ee0eceaf"
+instance_subnets         = ["subnet-00094899aa5c1237c", "subnet-033851faf5c36cbee", "subnet-0a981c178710f24ff"]
 associate_public_ip      = false
 cidr_allow_ingress_nomad = ["0.0.0.0/0"]
 permit_all_egress        = true
 lb_is_internal           = false
-lb_subnet_ids            = ["subnet-0252903206d749d94", "subnet-0701306e5b9347644", "subnet-008a82139d98216a0"]
+lb_subnet_ids            = ["subnet-0cc783d3f20ce5962", "subnet-00a91937aae892806", "subnet-03eb15fd41354c5f8"]
 
 # --- Compute --- #
 

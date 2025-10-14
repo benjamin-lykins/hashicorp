@@ -283,15 +283,15 @@ autopilot {
     enable_custom_upgrades    = false
 }
 
-tls {
-  http      = true
-  rpc       = true
-  cert_file = "$NOMAD_DIR_TLS/cert.pem" 
-  key_file  = "$NOMAD_DIR_TLS/key.pem"
-  ca_file   = "$NOMAD_DIR_TLS/bundle.pem"
-  verify_server_hostname = true
-  verify_https_client    = false
-}
+# tls {
+#   http      = true
+#   rpc       = true
+#   cert_file = "$NOMAD_DIR_TLS/cert.pem" 
+#   key_file  = "$NOMAD_DIR_TLS/key.pem"
+#   ca_file   = "$NOMAD_DIR_TLS/bundle.pem"
+#   verify_server_hostname = true
+#   verify_https_client    = false
+# }
 
 telemetry {
   collection_interval = "1s"
