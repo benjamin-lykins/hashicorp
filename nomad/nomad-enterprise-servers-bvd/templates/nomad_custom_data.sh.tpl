@@ -439,6 +439,7 @@ function main {
   generate_nomad_config
   template_nomad_systemd
   start_enable_nomad
+  bootstrap_nomad
   
   exit_script 0
 }
