@@ -39,6 +39,7 @@ variable "workspaces" {
     workspace_map_tags = optional(map(string), {
       module = "workspacer"
     })
+    workspace_tags = optional(list(string), [])
   })))
   default = {
   }
